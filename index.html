@@ -1,28 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>For You ❤️</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --rose: #e8637a; --blush: #f4b8c1; --deep: #1a0a14;
+    --gold: #d4a853; --cream: #fdf5f7; --text: #f9eef1;
+  }
+  html, body { width:100%; height:100%; overflow:hidden; font-family:'Raleway',sans-serif; background:var(--deep); color:var(--text); }
+  #canvas { position:fixed; inset:0; pointer-events:none; z-index:0; }
+  .bg-gradient {
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(107,31,53,0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(232,99,122,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #1a0a14 0%, #0d0509 100%);
+    z-index:0;
+  }
+
+  /* LOGIN */
+  #overlay {
+    position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
+    z-index:10; transition:opacity 1.2s ease, transform 1.2s ease;
+  }
+  #overlay.hide { opacity:0; transform:scale(1.04); pointer-events:none; }
+  .login-box {
+    position:relative; text-align:center; padding:56px 52px; border-radius:24px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(232,99,122,0.2);
+    backdrop-filter:blur(24px);
+    box-shadow:0 0 80px rgba(232,99,122,0.12),0 0 1px rgba(255,255,255,0.08) inset,0 32px 64px rgba(0,0,0,0.5);
+    max-width:420px; width:90%; animation:rise 1.4s cubic-bezier(.22,.68,0,1.2) both;
+  }
+  @keyframes rise { from{opacity:0;transform:translateY(30px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .petal-top {
+    position:absolute; top:-28px; left:50%; transform:translateX(-50%);
+    font-size:36px; animation:pulse-heart 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse-heart {
+    0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.15)}
+  }
+  .login-box h1 {
+    font-family:'Cormorant Garamond',serif; font-weight:300; font-size:2rem;
+    letter-spacing:0.04em; color:var(--cream); margin-bottom:10px; line-height:1.3;
+  }
+  .login-box .subtitle {
+    font-size:0.78rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:rgba(244,184,193,0.6); margin-bottom:36px;
+  }
+  .input-wrap { position:relative; margin-bottom:16px; }
+  .input-wrap input {
+    width:100%; padding:14px 20px; border-radius:50px;
+    border:1px solid rgba(232,99,122,0.3); background:rgba(255,255,255,0.05);
+    color:var(--cream); font-family:'Raleway',sans-serif; font-size:0.95rem;
+    letter-spacing:0.12em; text-align:center; outline:none;
+    transition:border-color 0.3s, box-shadow 0.3s;
+  }
+  .input-wrap input:focus { border-color:var(--rose); box-shadow:0 0 0 3px rgba(232,99,122,0.15); }
+  .input-wrap input::placeholder { color:rgba(244,184,193,0.35); letter-spacing:0.08em; }
+  .unlock-btn {
+    display:inline-flex; align-items:center; gap:10px; padding:14px 38px;
+    border:none; border-radius:50px; background:linear-gradient(135deg,#e8637a,#c0445d);
+    color:white; font-family:'Raleway',sans-serif; font-size:0.82rem; font-weight:400;
+    letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; margin-top:8px;
+    transition:transform 0.25s,box-shadow 0.25s; box-shadow:0 6px 24px rgba(232,99,122,0.4);
+  }
+  .unlock-btn:hover { transform:translateY(-2px) scale(1.03); box-shadow:0 10px 32px rgba(232,99,122,0.55); }
+  .unlock-btn:active { transform:scale(0.97); }
+  .error-msg { margin-top:16px; font-size:0.78rem; letter-spacing:0.1em; color:rgba(244,184,193,0.65); height:20px; }
+
+  /* MAIN */
+  #mainContent {
+    display:none; position:fixed; inset:0; overflow-y:auto; z-index:5;
+    opacity:0; transform:translateY(16px); transition:opacity 1.4s ease,transform 1.4s ease;
+  }
+  #mainContent.visible { opacity:1; transform:translateY(0); }
+  .content-inner {
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:60px 24px 80px; position:relative;
+  }
+  .line-deco {
+    width:1px; height:60px;
+    background:linear-gradient(to bottom,transparent,var(--rose),transparent);
+    margin-bottom:32px; opacity:0; animation:appear 1s 0.6s ease forwards;
+  }
+  @keyframes appear { to{opacity:1} }
+  .tag-line {
+    font-size:0.72rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:var(--rose); margin-bottom:20px; opacity:0; animation:slideup 0.9s 0.8s ease forwards;
+  }
+  @keyframes slideup { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .main-heading {
+    font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic;
+    font-size:clamp(2.6rem,7vw,4.2rem); color:var(--cream); text-align:center;
+    line-height:1.15; margin-bottom:48px; opacity:0; animation:slideup 1s 1s ease forwards;
+  }
+  .main-heading span { color:var(--rose); }
+
+  /* CARD SCENE */
+  .card-scene { position:relative; max-width:680px; width:100%; opacity:0; animation:slideup 1s 1.3s ease forwards; }
+
+  /* FLOATING PHOTOS */
+  .float-photo {
+    position:absolute;
+    width:96px; height:96px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2.5px solid rgba(232,99,122,0.45);
+    box-shadow:0 0 28px rgba(232,99,122,0.3), 0 8px 32px rgba(0,0,0,0.55);
+    opacity:0;
+    pointer-events:none;
+    z-index:2;
+  }
+
+  /* MESSAGE CARD */
+  .msg-card {
+    position:relative;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(232,99,122,0.15);
+    border-radius:20px; padding:48px 52px;
+    backdrop-filter:blur(16px);
+    box-shadow:0 24px 80px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.04) inset;
+    z-index:1;
+  }
+  .msg-card::before {
+    content:'\201C'; position:absolute; top:-18px; left:36px;
+    font-family:'Cormorant Garamond',serif; font-size:7rem;
+    color:var(--rose); opacity:0.25; line-height:1;
+  }
+
+  /* SCROLLABLE MESSAGE */
+  #typedText {
+    font-family:'Cormorant Garamond',serif; font-weight:300;
+    font-size:clamp(1.1rem,2.3vw,1.28rem); line-height:2;
+    color:rgba(253,245,247,0.9); white-space:pre-wrap;
+    max-height:55vh; overflow-y:auto; padding-right:8px;
+  }
+  #typedText::-webkit-scrollbar { width:3px; }
+  #typedText::-webkit-scrollbar-track { background:transparent; }
+  #typedText::-webkit-scrollbar-thumb { background:rgba(232,99,122,0.4); border-radius:10px; }
+
+  .cursor {
+    display:inline-block; width:2px; height:1.1em; background:var(--rose);
+    margin-left:3px; vertical-align:text-bottom; animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .sep {
+    width:120px; height:1px;
+    background:linear-gradient(to right,transparent,var(--gold),transparent);
+    margin:36px auto 0; opacity:0; animation:appear 1s 2.5s ease forwards;
+  }
+  .roses-row {
+    display:flex; gap:18px; margin-top:40px; font-size:1.4rem;
+    opacity:0; animation:appear 1.5s 3s ease forwards;
+  }
+  .sign-off {
+    margin-top:28px; font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:1.1rem; color:rgba(212,168,83,0.8); text-align:center;
+    opacity:0; animation:appear 1s 3.5s ease forwards;
+  }
+
+  @media(max-width:520px){
+    .msg-card{padding:32px 28px}
+    .login-box{padding:44px 28px}
+    .float-photo{width:68px;height:68px}
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Enter the Secret Code 💌</h1>
-    
-    <input type="password" id="codeInput" placeholder="Enter code...">
-    <button onclick="checkCode()">Unlock</button>
-    
-    <p id="error"></p>
+<div class="bg-gradient"></div>
+<canvas id="canvas"></canvas>
+
+<!-- LOGIN -->
+<div id="overlay">
+  <div class="login-box">
+    <div class="petal-top">🌹</div>
+    <h1>Something is waiting for you</h1>
+    <p class="subtitle">Made with love · just for you</p>
+    <div class="input-wrap">
+      <input type="password" id="codeInput" placeholder="our secret…" autocomplete="off">
+    </div>
+    <button class="unlock-btn" onclick="checkCode()">
+      <span>Open</span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <p class="error-msg" id="error"></p>
+  </div>
 </div>
 
-<div class="hidden" id="messageBox">
-    <h1>💖 A Message For You 💖</h1>
-    <p id="loveMessage">
-        <!-- We'll write your message here later -->
-    </p>
+<!-- MAIN -->
+<div id="mainContent">
+  <div class="content-inner">
+    <div class="line-deco"></div>
+    <p class="tag-line">Only for you</p>
+    <h1 class="main-heading">Hey, <span>beautiful</span> ❤️</h1>
+
+    <div class="card-scene" id="cardScene">
+      <!-- Photos must be in the Mihle folder -->
+      <img class="float-photo" id="photo1" src="photo1.jpeg" alt="her">
+      <img class="float-photo" id="photo2" src="photo2.jpeg" alt="her">
+      <img class="float-photo" id="photo3" src="photo3.jpeg" alt="her">
+
+      <div class="msg-card">
+        <p id="typedText"><span class="cursor"></span></p>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <div class="roses-row">
+      <span>🌹</span><span>🥀</span><span>🌹</span><span>🥀</span><span>🌹</span>
+    </div>
+    <p class="sign-off">— always &amp; forever, yours ♾<br>Ethan</p>
+  </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const SECRET_CODE = "1205";
+
+const MESSAGE =
+`I know things might not feel okay right now…
+and I know you might not want to talk about it — and that's okay.
+You don't have to explain if you not ready.
+
+But I need you to hear this.
+
+You are the most extraordinary thing that has ever happened to me.
+Not because you are perfect — but because you are real.
+Your laugh, your softness, the way you see the world…
+I see you. All of you.
+
+I see how much you carry, and the grace it takes to keep going.
+I see you working, sacrificing, keeping every promise you made —
+and it is one of the most beautiful things about you.
+
+I miss you… more than I usually let myself say.
+Someone out here is thinking of you, rooting for you, proud of you.
+
+No matter what comes — I am here.
+Not out of obligation. Not out of habit.
+But because there is nowhere else I would rather be
+than right here, in your world, loving you.
+
+Take your time. I'm not going anywhere.
+
+You are enough. You have always been enough.
+And I love you — today, tomorrow, always. ❤️`;
+// ────────────────────────────────────────────────────
+
+document.getElementById('codeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkCode();
+});
+
+function checkCode() {
+  const val = document.getElementById('codeInput').value.trim();
+  const err = document.getElementById('error');
+  if (val === SECRET_CODE) {
+    const ov = document.getElementById('overlay');
+    ov.classList.add('hide');
+    setTimeout(() => {
+      ov.style.display = 'none';
+      const main = document.getElementById('mainContent');
+      main.style.display = 'block';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        main.classList.add('visible');
+        setTimeout(startTyping, 1600);
+        setTimeout(startPhotos, 3200);
+      }));
+    }, 1200);
+  } else {
+    err.textContent = 'Hmm… try again, love 💭';
+    const box = document.querySelector('.login-box');
+    ['-8px','6px','-4px','0px'].forEach((x,i) =>
+      setTimeout(() => box.style.transform = `translateX(${x})`, i * 75)
+    );
+  }
+}
+
+// ── TYPING ──
+let ti = 0;
+function startTyping() {
+  const el = document.getElementById('typedText');
+  el.innerHTML = '<span class="cursor"></span>';
+  function type() {
+    if (ti < MESSAGE.length) {
+      const cur = el.querySelector('.cursor');
+      if (cur) cur.remove();
+      el.innerHTML += MESSAGE[ti] === '\n' ? '<br>' : MESSAGE[ti];
+      el.innerHTML += '<span class="cursor"></span>';
+      // Auto-scroll to bottom as text types
+      el.scrollTop = el.scrollHeight;
+      ti++;
+      setTimeout(type, ti < 8 ? 90 : 65);
+    }
+  }
+  type();
+}
+
+// ── FLOATING PHOTOS ──
+function startPhotos() {
+  const scene  = document.getElementById('cardScene');
+  const card   = scene.querySelector('.msg-card');
+  const photos = [
+    document.getElementById('photo1'),
+    document.getElementById('photo2'),
+    document.getElementById('photo3')
+  ];
+  const SIZE   = photos[0].offsetWidth || 96;
+  let current  = 0;
+
+  function show() {
+    const el   = photos[current % 3];
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+
+    const cardH   = card.offsetHeight;
+    const cardTop = card.offsetTop;
+    const minTop  = cardTop + SIZE * 0.2;
+    const maxTop  = cardTop + cardH - SIZE * 1.1;
+    const top     = minTop + Math.random() * Math.max(60, maxTop - minTop);
+
+    const offset = SIZE * 0.38;
+    el.style.top        = top + 'px';
+    el.style.transition = 'none';
+    el.style.opacity    = '0';
+    el.style.transform  = 'translateY(0)';
+
+    if (side === 'left') {
+      el.style.left  = `-${offset}px`;
+      el.style.right = 'auto';
+    } else {
+      el.style.right = `-${offset}px`;
+      el.style.left  = 'auto';
+    }
+
+    const drift = (Math.random() < 0.5 ? 1 : -1) * (14 + Math.random() * 20);
+
+    setTimeout(() => {
+      el.style.transition = `opacity 2s ease, transform ${7 + Math.random()*3}s ease-in-out`;
+      el.style.transform  = `translateY(${drift}px)`;
+      el.style.opacity    = '0.78';
+    }, 60);
+
+    const stay = 5000 + Math.random() * 4000;
+    setTimeout(() => {
+      el.style.transition = 'opacity 2s ease';
+      el.style.opacity    = '0';
+      setTimeout(() => {
+        el.style.transform = 'translateY(0)';
+        current++;
+        show();
+      }, 1500 + Math.random() * 1500);
+    }, stay);
+  }
+
+  show();
+}
+
+// ── PARTICLES ──
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize(); addEventListener('resize', resize);
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function mkParticle() {
+  const heart = Math.random() < 0.18;
+  return {
+    x: rand(0,W), y: rand(H+10,H+80),
+    size: rand(4, heart?13:6), speedY: rand(0.35,1.2),
+    speedX: rand(-0.25,0.25), opacity: rand(0.07,0.38),
+    type: heart?'heart':'petal',
+    rotation: rand(0,Math.PI*2), rotSpeed: rand(-0.012,0.012),
+    wobble: rand(0,Math.PI*2), wobbleSpeed: rand(0.01,0.022),
+  };
+}
+
+function drawHeart(x,y,s,o,r){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(r); ctx.globalAlpha=o; ctx.fillStyle='#e8637a';
+  const h=s*0.5; ctx.beginPath();
+  ctx.moveTo(0,h*0.4);
+  ctx.bezierCurveTo(0,-h*0.2,-h,-h*0.2,-h,h*0.4);
+  ctx.bezierCurveTo(-h,h,0,h*1.6,0,h*1.6);
+  ctx.bezierCurveTo(0,h*1.6,h,h,h,h*0.4);
+  ctx.bezierCurveTo(h,-h*0.2,0,-h*0.2,0,h*0.4);
+  ctx.fill(); ctx.restore();
+}
+
+function drawPetal(x,y,s,o,r){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(r); ctx.globalAlpha=o;
+  ctx.fillStyle=`hsl(${rand(340,356)},70%,72%)`;
+  ctx.beginPath(); ctx.ellipse(0,0,s*0.4,s,0,0,Math.PI*2);
+  ctx.fill(); ctx.restore();
+}
+
+for(let k=0;k<36;k++){ const p=mkParticle(); p.y=rand(0,H); particles.push(p); }
+
+(function loop(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach((p,i)=>{
+    p.y-=p.speedY; p.wobble+=p.wobbleSpeed;
+    p.x+=p.speedX+Math.sin(p.wobble)*0.3; p.rotation+=p.rotSpeed;
+    p.type==='heart'
+      ? drawHeart(p.x,p.y,p.size,p.opacity,p.rotation)
+      : drawPetal(p.x,p.y,p.size,p.opacity,p.rotation);
+    if(p.y<-30) particles[i]=mkParticle();
+  });
+  requestAnimationFrame(loop);
+})();
+
+setInterval(()=>{
+  for(let k=0;k<2;k++) particles.push(mkParticle());
+  while(particles.length>52) particles.shift();
+},2500);
+</script>
 </body>
 </html>
