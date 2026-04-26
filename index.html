@@ -76,7 +76,7 @@
     border:1px solid rgba(255,255,255,0.1);
     transition:transform 0.2s ease, top 0.2s ease, left 0.2s ease, opacity 0.3s;
   }
-  .btn-no.fleeing { position:fixed; z-index:999; }
+  .btn-no.fleeing { position:fixed; z-index:2100; }
   .btn-no:not(.fleeing):hover { opacity:0.5; }
 
   /* ── REACTION TEXT ── */
@@ -483,7 +483,7 @@ const yesnoQuestions = [
   },
   {
     icon: '💭',
-    q: 'Do you know someone out there thinks about you every single day?',
+    q: 'Did you that he thinks about you every single day?',
     sub: 'think carefully',
     noReaction: "You really don't? 🥺 one more try…"
   },
@@ -495,7 +495,7 @@ const yesnoQuestions = [
   },
   {
     icon: '✨',
-    q: "Do you know that your smile can fix someone's whole day?",
+    q: "Did you know that your smile can fix Tshepie's whole day?",
     sub: 'it absolutely can',
     noReaction: "Girl… it really does. Say yes 😭"
   },
@@ -515,10 +515,10 @@ const choiceQuestions = [
     choices: [
       'Some random guy 🙄',
       'My best friend 💫',
-      'The love of my life ❤️',
-      'My whole entire world 🌍'
+      'My charmy 2020 love❤️',
+      'Tshepie is 🌍'
     ],
-    wrongIndices: [0],
+    wrongIndices: [0,1],
     wrongReaction: "Hmm… I really don't think so 😏 Try again, love.",
     rightReaction: "Now THAT'S the right answer 💕",
     answerKey: 'husband',
@@ -531,12 +531,28 @@ const choiceQuestions = [
     choices: [
       'Somewhere quiet and alone 🌫️',
       'I don\'t really know 🏡',
-      'Wherever he is 🌹',
+      'In his thoughts 🌹',
       'Into his arms, always 🥺'
     ],
     wrongIndices: [0, 1],
     wrongReaction: "Are you really sure about that? 💭 Try again…",
     rightReaction: "That's my whole heart right there 🌹",
+    answerKey: 'home',
+    answerDisplay: 'ansHome'
+  },
+  {
+    icon: '🌙',
+    q: 'How often do you think about him?',
+    sub: 'You better do',
+    choices: [
+      'Never do 😝',
+      'When im sad 🌹',
+      'Everyday 💕',
+      'Whenever im happy or sad 🥺'
+    ],
+    wrongIndices: [0,1],
+    wrongReaction: "Cant be? 💭 Try again…",
+    rightReaction: "Well you always in his thoughts 🌹",
     answerKey: 'home',
     answerDisplay: 'ansHome'
   }
