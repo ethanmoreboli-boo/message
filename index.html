@@ -76,19 +76,74 @@
     border:1px solid rgba(255,255,255,0.1);
     transition:transform 0.2s ease, top 0.2s ease, left 0.2s ease, opacity 0.3s;
   }
-  /* "No" button runs away on hover — positioned absolute when fleeing */
-  .btn-no.fleeing {
-    position:fixed; z-index:999;
-  }
+  .btn-no.fleeing { position:fixed; z-index:999; }
   .btn-no:not(.fleeing):hover { opacity:0.5; }
 
-  /* ── REACTION TEXT (after No) ── */
+  /* ── REACTION TEXT ── */
   .reaction {
     margin-top:18px; font-family:'Cormorant Garamond',serif; font-style:italic;
     font-size:1rem; color:rgba(244,184,193,0.7); min-height:24px;
     transition:opacity 0.4s; opacity:0;
   }
   .reaction.show { opacity:1; }
+
+  /* ── CHOICE GRID ── */
+  .choice-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;
+  }
+  .choice-btn {
+    padding:15px 14px; border-radius:16px;
+    border:1px solid rgba(232,99,122,0.22);
+    background:rgba(255,255,255,0.04);
+    color:rgba(253,245,247,0.85);
+    font-family:'Cormorant Garamond',serif; font-size:0.98rem;
+    cursor:pointer; transition:all 0.25s ease; line-height:1.35; text-align:center;
+  }
+  .choice-btn:not(.wrong):not(.right):hover {
+    background:rgba(232,99,122,0.12);
+    border-color:rgba(232,99,122,0.55);
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(232,99,122,0.2);
+  }
+  .choice-btn.wrong {
+    animation:shake 0.45s ease both;
+    background:rgba(80,10,20,0.3);
+    border-color:rgba(180,50,50,0.25);
+    color:rgba(244,184,193,0.3);
+    pointer-events:none; cursor:default;
+  }
+  .choice-btn.right {
+    background:linear-gradient(135deg,rgba(232,99,122,0.25),rgba(212,168,83,0.18));
+    border-color:var(--gold);
+    color:var(--cream);
+    box-shadow:0 0 28px rgba(212,168,83,0.25);
+    pointer-events:none;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-9px)}
+    40%{transform:translateX(9px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+  @keyframes rightPulse {
+    0%{box-shadow:0 0 0 0 rgba(212,168,83,0.4)}
+    70%{box-shadow:0 0 0 14px rgba(212,168,83,0)}
+    100%{box-shadow:0 0 0 0 rgba(212,168,83,0)}
+  }
+  .choice-btn.right { animation:rightPulse 0.7s ease; }
+
+  /* ── STEP INDICATOR ── */
+  .step-dots {
+    display:flex; gap:8px; justify-content:center; margin-bottom:28px;
+  }
+  .dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(232,99,122,0.25);
+    transition:all 0.4s;
+  }
+  .dot.active { background:var(--rose); box-shadow:0 0 8px rgba(232,99,122,0.5); }
+  .dot.done { background:var(--gold); }
 
   /* ── PASSWORD SCREEN ── */
   .input-wrap { margin-bottom:16px; }
@@ -190,10 +245,44 @@
     opacity:0; animation:appear 1.5s 3s ease forwards;
   }
 
+  /* ── ANSWERS REVEAL ── */
+  .answers-reveal {
+    max-width:680px; width:100%; margin-top:48px;
+    opacity:0; animation:appear 1s 3.6s ease forwards;
+    text-align:center;
+  }
+  .answers-reveal .reveal-label {
+    font-size:0.68rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:rgba(212,168,83,0.55); margin-bottom:22px; display:block;
+  }
+  .answers-cards {
+    display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+  }
+  .answer-pill {
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(212,168,83,0.2);
+    border-radius:18px; padding:22px 28px;
+    flex:1; min-width:180px; max-width:300px;
+    text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    backdrop-filter:blur(10px);
+  }
+  .answer-pill .a-label {
+    font-size:0.64rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:rgba(212,168,83,0.5); margin-bottom:10px; display:block;
+  }
+  .answer-pill .a-value {
+    font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:1.08rem; color:rgba(253,245,247,0.88); line-height:1.5;
+  }
+  .answer-pill .a-icon {
+    font-size:1.5rem; display:block; margin-bottom:10px;
+  }
+
   /* ── RESPONSE SECTION ── */
   .response-section {
     margin-top:44px; max-width:680px; width:100%;
-    opacity:0; animation:appear 1s 4s ease forwards;
+    opacity:0; animation:appear 1s 4.2s ease forwards;
     text-align:center;
   }
   .response-section p.prompt {
@@ -229,13 +318,15 @@
   .sign-off {
     margin-top:32px; font-family:'Cormorant Garamond',serif; font-style:italic;
     font-size:1rem; color:rgba(212,168,83,0.7); text-align:center;
-    opacity:0; animation:appear 1s 4.5s ease forwards;
+    opacity:0; animation:appear 1s 5s ease forwards;
   }
 
   @media(max-width:520px){
     .msg-card{padding:32px 26px}
     .glass{padding:44px 28px}
     .float-photo{width:68px;height:68px}
+    .choice-grid{grid-template-columns:1fr 1fr; gap:9px}
+    .choice-btn{font-size:0.88rem; padding:13px 10px}
   }
 </style>
 </head>
@@ -245,17 +336,27 @@
 <canvas id="canvas"></canvas>
 
 <!-- ═══════════════════════════════════════
-     SCREEN 1 — THE GAME (Yes / No loop)
+     SCREEN 1 — THE GAME (Yes/No + Choice)
 ═══════════════════════════════════════ -->
 <div class="screen" id="screenGame">
   <div class="glass" id="gameCard">
+
+    <!-- step dots -->
+    <div class="step-dots" id="stepDots"></div>
+
     <span class="icon" id="gameIcon">🌹</span>
     <h2 id="gameQ">Do you know how special you are?</h2>
     <p class="sub" id="gameSub">answer honestly</p>
-    <div class="btn-row">
+
+    <!-- Yes/No row -->
+    <div class="btn-row" id="btnRow">
       <button class="btn-yes" onclick="onYes()">Yes 🌸</button>
       <button class="btn-no" id="btnNo" onclick="onNo()">No</button>
     </div>
+
+    <!-- Choice grid (hidden initially) -->
+    <div class="choice-grid" id="choiceGrid" style="display:none"></div>
+
     <p class="reaction" id="reaction"></p>
   </div>
 </div>
@@ -302,6 +403,23 @@
       <span>🌹</span><span>🥀</span><span>🌹</span><span>🥀</span><span>🌹</span>
     </div>
 
+    <!-- ANSWERS REVEAL -->
+    <div class="answers-reveal">
+      <span class="reveal-label">you already knew the answers</span>
+      <div class="answers-cards">
+        <div class="answer-pill">
+          <span class="a-icon">💍</span>
+          <span class="a-label">my husband is</span>
+          <span class="a-value" id="ansHusband">—</span>
+        </div>
+        <div class="answer-pill">
+          <span class="a-icon">🏡</span>
+          <span class="a-label">home feels like</span>
+          <span class="a-value" id="ansHome">—</span>
+        </div>
+      </div>
+    </div>
+
     <!-- RESPONSE SECTION -->
     <div class="response-section">
       <p class="prompt">— how did this make you feel?</p>
@@ -314,7 +432,7 @@
       <p class="reply-response" id="replyResponse"></p>
     </div>
 
-    <p class="sign-off">— always &amp; forever, yours ♾</p>
+    <p class="sign-off">— always &amp; forever, yours ♾<br>Ethan</p>
   </div>
 </div>
 
@@ -354,9 +472,9 @@ You are enough. You have always been enough.
 And I love you — today, tomorrow, always. ❤️`;
 
 // ══════════════════════════════════════════
-// YES / NO GAME
+// QUESTIONS
 // ══════════════════════════════════════════
-const questions = [
+const yesnoQuestions = [
   {
     icon: '🌹',
     q: 'Do you know how special you are?',
@@ -377,7 +495,7 @@ const questions = [
   },
   {
     icon: '✨',
-    q: 'Do you know that your smile can fix someone\'s whole day?',
+    q: "Do you know that your smile can fix someone's whole day?",
     sub: 'it absolutely can',
     noReaction: "Girl… it really does. Say yes 😭"
   },
@@ -389,59 +507,150 @@ const questions = [
   }
 ];
 
-let qIndex = 0;
-let noCount = 0;
+const choiceQuestions = [
+  {
+    icon: '💍',
+    q: 'Just to confirm… who exactly is your husband?',
+    sub: 'choose carefully, love',
+    choices: [
+      'Some random guy 🙄',
+      'My best friend 💫',
+      'The love of my life ❤️',
+      'My whole entire world 🌍'
+    ],
+    wrongIndices: [0],
+    wrongReaction: "Hmm… I really don't think so 😏 Try again, love.",
+    rightReaction: "Now THAT'S the right answer 💕",
+    answerKey: 'husband',
+    answerDisplay: 'ansHusband'
+  },
+  {
+    icon: '🌙',
+    q: 'And when the whole world feels too heavy… where does your heart go?',
+    sub: 'your heart already knows the answer',
+    choices: [
+      'Somewhere quiet and alone 🌫️',
+      'I don\'t really know 🏡',
+      'Wherever he is 🌹',
+      'Into his arms, always 🥺'
+    ],
+    wrongIndices: [0, 1],
+    wrongReaction: "Are you really sure about that? 💭 Try again…",
+    rightReaction: "That's my whole heart right there 🌹",
+    answerKey: 'home',
+    answerDisplay: 'ansHome'
+  }
+];
 
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let phase      = 'yesno';   // 'yesno' | 'choice'
+let yesnoIdx   = 0;
+let choiceIdx  = 0;
+let noCount    = 0;
+const collectedAnswers = {};
+
+// Total steps for the dot indicator
+const TOTAL_STEPS = yesnoQuestions.length + choiceQuestions.length;
+
+// ── Build step dots ──
+(function buildDots() {
+  const wrap = document.getElementById('stepDots');
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot' + i;
+    wrap.appendChild(d);
+  }
+})();
+
+function updateDots(currentStep) {
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const d = document.getElementById('dot' + i);
+    d.className = 'dot';
+    if (i < currentStep)  d.classList.add('done');
+    if (i === currentStep) d.classList.add('active');
+  }
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
 function renderQuestion() {
-  const data = questions[qIndex % questions.length];
   const card = document.getElementById('gameCard');
   card.style.opacity = '0';
   card.style.transform = 'translateY(10px)';
   setTimeout(() => {
-    document.getElementById('gameIcon').textContent = data.icon;
-    document.getElementById('gameQ').textContent = data.q;
-    document.getElementById('gameSub').textContent = data.sub;
+    if (phase === 'yesno') {
+      renderYesNo();
+    } else {
+      renderChoice();
+    }
     document.getElementById('reaction').textContent = '';
     document.getElementById('reaction').classList.remove('show');
     card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     card.style.opacity = '1';
     card.style.transform = 'translateY(0)';
-  }, 300);
+  }, 320);
 }
 
+function renderYesNo() {
+  const data = yesnoQuestions[yesnoIdx % yesnoQuestions.length];
+  document.getElementById('gameIcon').textContent = data.icon;
+  document.getElementById('gameQ').textContent = data.q;
+  document.getElementById('gameSub').textContent = data.sub;
+  document.getElementById('btnRow').style.display = 'flex';
+  document.getElementById('choiceGrid').style.display = 'none';
+  const stepNum = yesnoIdx % yesnoQuestions.length;
+  updateDots(stepNum);
+}
+
+function renderChoice() {
+  const data = choiceQuestions[choiceIdx];
+  document.getElementById('gameIcon').textContent = data.icon;
+  document.getElementById('gameQ').textContent = data.q;
+  document.getElementById('gameSub').textContent = data.sub;
+  document.getElementById('btnRow').style.display = 'none';
+
+  const grid = document.getElementById('choiceGrid');
+  grid.style.display = 'grid';
+  grid.innerHTML = '';
+  data.choices.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = text;
+    btn.onclick = () => onChoiceSelect(btn, i, data, grid);
+    grid.appendChild(btn);
+  });
+
+  const stepNum = yesnoQuestions.length + choiceIdx;
+  updateDots(stepNum);
+}
+
+// ══════════════════════════════════════════
+// YES / NO GAME
+// ══════════════════════════════════════════
 function onYes() {
-  const game = document.getElementById('screenGame');
-  game.classList.add('out');
-  setTimeout(() => {
-    game.classList.add('gone');
-    const lock = document.getElementById('screenLock');
-    lock.classList.remove('gone');
-    lock.style.opacity = '0';
-    lock.style.transform = 'scale(0.97)';
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      lock.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
-      lock.style.opacity = '1';
-      lock.style.transform = 'scale(1)';
-    }));
-  }, 900);
+  // transition to choice questions
+  phase = 'choice';
+  choiceIdx = 0;
+  renderQuestion();
 }
 
 function onNo() {
   noCount++;
-  const data = questions[qIndex % questions.length];
+  const data = yesnoQuestions[yesnoIdx % yesnoQuestions.length];
   const reaction = document.getElementById('reaction');
   reaction.textContent = data.noReaction;
   reaction.classList.add('show');
 
-  // Make No button run away
   const btn = document.getElementById('btnNo');
   runAway(btn);
 
-  // After a moment, move to next question
   setTimeout(() => {
-    qIndex++;
+    yesnoIdx++;
     renderQuestion();
-    // Reset No button position
     btn.classList.remove('fleeing');
     btn.style.top = '';
     btn.style.left = '';
@@ -467,7 +676,6 @@ function runAway(btn) {
   });
 }
 
-// Hover — No button tries to escape before you click it
 document.getElementById('btnNo').addEventListener('mousemove', function(e) {
   if (this.classList.contains('fleeing')) return;
   const rect = this.getBoundingClientRect();
@@ -496,6 +704,67 @@ document.getElementById('btnNo').addEventListener('mousemove', function(e) {
 });
 
 // ══════════════════════════════════════════
+// CHOICE QUESTIONS
+// ══════════════════════════════════════════
+function onChoiceSelect(btn, index, data, grid) {
+  const reaction = document.getElementById('reaction');
+  const isWrong = data.wrongIndices.includes(index);
+
+  if (isWrong) {
+    btn.classList.add('wrong');
+    reaction.textContent = data.wrongReaction;
+    reaction.classList.add('show');
+  } else {
+    // Correct answer
+    btn.classList.add('right');
+    // Dim all other buttons
+    grid.querySelectorAll('.choice-btn:not(.right)').forEach(b => {
+      b.classList.add('wrong');
+      b.style.animation = 'none';
+      b.style.opacity   = '0.18';
+    });
+
+    reaction.textContent = data.rightReaction;
+    reaction.classList.add('show');
+
+    // Store the answer text (strip emoji for display)
+    const cleanText = btn.textContent.trim();
+    collectedAnswers[data.answerKey] = cleanText;
+
+    // Advance after a beat
+    setTimeout(() => {
+      choiceIdx++;
+      if (choiceIdx < choiceQuestions.length) {
+        renderQuestion();
+      } else {
+        // All done — go to password
+        goToPassword();
+      }
+    }, 1600);
+  }
+}
+
+// ══════════════════════════════════════════
+// TRANSITION TO PASSWORD
+// ══════════════════════════════════════════
+function goToPassword() {
+  const game = document.getElementById('screenGame');
+  game.classList.add('out');
+  setTimeout(() => {
+    game.classList.add('gone');
+    const lock = document.getElementById('screenLock');
+    lock.classList.remove('gone');
+    lock.style.opacity = '0';
+    lock.style.transform = 'scale(0.97)';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      lock.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
+      lock.style.opacity = '1';
+      lock.style.transform = 'scale(1)';
+    }));
+  }, 900);
+}
+
+// ══════════════════════════════════════════
 // PASSWORD
 // ══════════════════════════════════════════
 document.getElementById('codeInput').addEventListener('keydown', e => {
@@ -509,6 +778,8 @@ function checkCode() {
     document.getElementById('screenLock').classList.add('out');
     setTimeout(() => {
       document.getElementById('screenLock').classList.add('gone');
+      // Populate answers
+      populateAnswers();
       const main = document.getElementById('screenMain');
       main.style.display = 'block';
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -524,6 +795,14 @@ function checkCode() {
       setTimeout(() => box.style.transform = `translateX(${x})`, i * 75)
     );
   }
+}
+
+function populateAnswers() {
+  const husband = collectedAnswers['husband'] || '—';
+  const home    = collectedAnswers['home']    || '—';
+  // Strip trailing emoji for cleaner display — keep it as-is, it's beautiful
+  document.getElementById('ansHusband').textContent = husband;
+  document.getElementById('ansHome').textContent    = home;
 }
 
 // ══════════════════════════════════════════
